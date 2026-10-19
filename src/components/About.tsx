@@ -27,7 +27,7 @@ const brands: BrandLogo[] = [
   },
   {
     name: "B. Braun",
-    src: "https://upload.wikimedia.org/wikipedia/commons/d/d5/Bbraun.svg",
+    src: "https://commons.wikimedia.org/wiki/Special:Redirect/file/Bbraun.svg",
   },
   {
     name: "Cook Medical",
@@ -69,7 +69,7 @@ const brands: BrandLogo[] = [
   {
     name: "GE",
     alt: "GE HealthCare logo",
-    src: "https://upload.wikimedia.org/wikipedia/commons/b/bc/GE_HealthCare_logo_2023.svg",
+    src: "https://www.gehealthcare.com/cdn/res/images/logo.svg",
   },
   {
     name: "Paramount",
