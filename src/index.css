@@ -35,36 +35,38 @@
   --color-cream-deep: var(--cream-deep);
   --color-teal: var(--teal);
   --color-navy: var(--navy);
+    --font-arial: Arial, Helvetica, sans-serif;
 }
 
 /* Brand: navy #1D3E7A + teal #10847E from the card; cream #F2E2C4 (Adobe "Champagne/Wheat" family) from the card paper */
+/* Brand: navy #1D3E7A + teal #10847E from the card; cream #F2E7D0 matched to index-old.html (lighter than the original card-paper #F2E2C4) */
 :root {
   --radius: 0.75rem;
-  --cream: oklch(0.92 0.045 80);
-  --cream-deep: oklch(0.86 0.07 78);
-  --navy: oklch(0.36 0.11 262);
-  --teal: oklch(0.55 0.1 185);
-  --background: oklch(0.975 0.015 82);
-  --foreground: oklch(0.25 0.06 262);
-  --card: oklch(0.995 0.006 85);
+  --cream: #f2e7d0;
+  --cream-deep: #e8d4b1;
+  --navy: #1d3e7a;
+  --teal: #10847e;
+  --background: #fbf8f0;
+  --foreground: #263754;
+  --card: #fffdf8;
   --card-foreground: var(--foreground);
-  --popover: oklch(0.995 0.006 85);
+  --popover: #fffdf8;
   --popover-foreground: var(--foreground);
   --primary: var(--navy);
   --primary-foreground: oklch(0.98 0.01 85);
   --secondary: var(--cream);
   --secondary-foreground: var(--navy);
   --muted: oklch(0.94 0.025 82);
-  --muted-foreground: oklch(0.48 0.04 262);
+  --muted-foreground: #647087;
   --accent: var(--teal);
   --accent-foreground: oklch(0.98 0.01 85);
   --destructive: oklch(0.577 0.245 27.325);
   --destructive-foreground: oklch(0.98 0 0);
-  --border: oklch(0.88 0.03 80);
+  --border: #e2d9c7;
   --input: oklch(0.86 0.03 80);
   --ring: var(--teal);
   --gradient-brand: linear-gradient(120deg, var(--navy), var(--teal));
-  --shadow-soft: 0 20px 50px -20px color-mix(in oklab, var(--navy) 35%, transparent);
+  --shadow-soft: 0 20px 50px -20px rgba(29, 62, 122, 0.32);
 }
 
 @layer base {
@@ -72,9 +74,10 @@
     border-color: var(--color-border);
   }
 
-  html {
-    scroll-behavior: smooth;
-  }
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: 86px;
+}
 
   body {
     background-color: var(--color-background);
@@ -103,4 +106,48 @@
 
 @utility shadow-soft {
   box-shadow: var(--shadow-soft);
+}
+
+@utility container-site {
+  width: min(1120px, calc(100% - 40px));
+  margin-inline: auto;
+  @media (max-width: 680px) {
+    width: min(100% - 32px, 560px);
+  }
+}
+
+/* FiMa partner logo marquee: continuous, seamless, single-row movement. */
+@keyframes fima-partner-marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+.brand-logo-marquee {
+  width: 100%;
+  overflow: hidden;
+}
+
+.brand-logo-track {
+  display: flex;
+  width: max-content;
+  animation: fima-partner-marquee 38s linear infinite;
+  will-change: transform;
+}
+
+.brand-logo-group {
+  display: flex;
+  flex: 0 0 auto;
+  gap: 1rem;
+  padding-right: 1rem;
+}
+
+/* Keep the movement slower for people who request reduced motion. */
+@media (prefers-reduced-motion: reduce) {
+  .brand-logo-track {
+    animation-duration: 75s;
+  }
 }
