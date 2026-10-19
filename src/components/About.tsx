@@ -78,14 +78,6 @@ const brands: BrandLogo[] = [
   },
 ];
 
-const services = [
-  { icon: FileCheck, title: "Product Registration" },
-  { icon: Ship, title: "Import" },
-  { icon: Warehouse, title: "Storage & Distribution" },
-  { icon: Megaphone, title: "Promotion & Sales" },
-  { icon: Rocket, title: "Market Research & Launch" },
-];
-
 const eyebrow = "text-sm font-bold uppercase tracking-widest text-teal";
 
 export default function About() {
@@ -243,25 +235,6 @@ export default function About() {
               ))}
             </div>
           </div>
-        </div>
-
-        {/* Service chain */}
-        <div className="mt-14 text-center max-[680px]:mt-12">
-          <p className={eyebrow}>What we cover</p>
-          <ol className="mt-6 grid grid-cols-5 gap-4 max-[900px]:grid-cols-3 max-[680px]:grid-cols-2 max-[680px]:gap-3">
-            {services.map(({ icon: Icon, title }, i) => (
-              <li
-                key={title}
-                className="relative rounded-[22px] border border-[rgba(29,62,122,0.06)] bg-card px-4 pb-5 pt-7 shadow-soft"
-              >
-                <span className="absolute left-4 top-3 text-xs font-bold text-teal/60">0{i + 1}</span>
-                <div className="mx-auto mb-3 grid h-12 w-12 place-items-center rounded-[14px] bg-[#e5f1ec] text-teal">
-                  <Icon className="h-6 w-6" />
-                </div>
-                <p className="text-sm font-bold leading-snug text-navy">{title}</p>
-              </li>
-            ))}
-          </ol>
         </div>
       </div>
     </section>

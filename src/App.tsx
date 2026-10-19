@@ -6,9 +6,7 @@ import Concerns from "./components/Concerns";
 import Contact from "./components/Contact";
 import Footer from "./components/Footer";
 
-
 function App() {
-  const [open, setOpen] = useState(false);
 
   return (
     <div className="min-h-screen">
