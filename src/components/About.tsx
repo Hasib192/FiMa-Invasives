@@ -1,9 +1,81 @@
-import { FileCheck, Ship, Warehouse, Megaphone, Rocket } from "lucide-react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import {
+  ChevronLeft,
+  ChevronRight,
+  FileCheck,
+  Ship,
+  Warehouse,
+  Megaphone,
+  Rocket,
+} from "lucide-react";
 import aboutImg from "../assets/about-us-banner.jpg";
 
-const brands = [
-  "BD", "B. Braun", "Cook Medical", "Baxter", "Octapharma", "Kedrion", "Teleflex",
-  "Able", "Meditech", "Omron", "Surgimed", "GE", "Paramount",
+type BrandLogo = {
+  name: string;
+  src: string;
+  alt?: string;
+  imageClass?: string;
+  monochrome?: boolean;
+};
+
+// Original logo artwork from manufacturer/source websites.
+// The carousel displays image artwork instead of brand-name text.
+const brands: BrandLogo[] = [
+  {
+    name: "BD",
+    src: "https://www.unicornhs.org/wp-content/uploads/2022/09/Brands-Logo-BD.png",
+  },
+  {
+    name: "B. Braun",
+    src: "https://upload.wikimedia.org/wikipedia/commons/d/d5/Bbraun.svg",
+  },
+  {
+    name: "Cook Medical",
+    src: "https://www.unicornhs.org/wp-content/uploads/2022/10/Cook-Medical-Logo.png",
+  },
+  {
+    name: "Baxter",
+    src: "https://www.unicornhs.org/wp-content/uploads/2022/09/Brands-Logo-Baxter.png",
+  },
+  {
+    name: "Octapharma",
+    src: "https://upload.wikimedia.org/wikipedia/commons/6/65/Logo_octapharma.png",
+  },
+  {
+    name: "Kedrion",
+    src: "https://mma.prnewswire.com/media/2680007/Kedrion_Biopharma_Logo.jpg?p=twitter",
+  },
+  {
+    name: "Teleflex",
+    src: "https://upload.wikimedia.org/wikipedia/commons/4/4e/Teleflex_logo.svg",
+  },
+  {
+    name: "Able",
+    src: "https://www.ablemedicaldevices.com/wp-content/uploads/2021/07/ABLE_%E2%94%ACLogoFinal-WHITE_VECTOR.png",
+    monochrome: true,
+  },
+  {
+    name: "Meditech",
+    src: "https://zenprospect-production.s3.amazonaws.com/uploads/pictures/66f88a4e5388b20001a5dddc/picture",
+  },
+  {
+    name: "Omron",
+    src: "https://www.unicornhs.org/wp-content/uploads/2022/10/Omron-Logo.png",
+  },
+  {
+    name: "Surgimed",
+    src: "https://img.ws.mms.shopee.ph/ph-11134216-7qul5-ljqjghhwb5an2f",
+  },
+  {
+    name: "GE",
+    alt: "GE HealthCare logo",
+    src: "https://upload.wikimedia.org/wikipedia/commons/b/bc/GE_HealthCare_logo_2023.svg",
+  },
+  {
+    name: "Paramount",
+    src: "https://www.paramountsurgimed.com/wp-content/uploads/2023/08/156x150-px-5.jpg",
+    imageClass: "object-cover object-[center_44%] scale-[1.12]",
+  },
 ];
 
 const services = [
@@ -17,6 +89,51 @@ const services = [
 const eyebrow = "text-sm font-bold uppercase tracking-widest text-teal";
 
 export default function About() {
+  const brandCarouselRef = useRef<HTMLDivElement>(null);
+  const prefersReducedMotion = useRef(false);
+  const [brandCarouselPaused, setBrandCarouselPaused] = useState(false);
+
+  const scrollBrandCarousel = useCallback((direction: "previous" | "next") => {
+    const viewport = brandCarouselRef.current;
+    const firstCard = viewport?.querySelector<HTMLElement>("[data-brand-card]");
+
+    if (!viewport || !firstCard) return;
+
+    const styles = window.getComputedStyle(viewport);
+    const gap = Number.parseFloat(styles.columnGap || styles.gap || "16");
+    const step = firstCard.getBoundingClientRect().width + (Number.isFinite(gap) ? gap : 16);
+    const maxScroll = Math.max(0, viewport.scrollWidth - viewport.clientWidth);
+    const atStart = viewport.scrollLeft <= 2;
+    const atEnd = viewport.scrollLeft >= maxScroll - 2;
+
+    let left: number;
+
+    if (direction === "next") {
+      left = atEnd ? 0 : Math.min(maxScroll, viewport.scrollLeft + step);
+    } else {
+      left = atStart ? maxScroll : Math.max(0, viewport.scrollLeft - step);
+    }
+
+    viewport.scrollTo({
+      left,
+      behavior: prefersReducedMotion.current ? "auto" : "smooth",
+    });
+  }, []);
+
+  useEffect(() => {
+    const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+    prefersReducedMotion.current = reducedMotion.matches;
+
+    // Respect motion preferences; manual scrolling and arrow controls remain available.
+    if (brandCarouselPaused || reducedMotion.matches) return;
+
+    const timer = window.setInterval(() => {
+      scrollBrandCarousel("next");
+    }, 4200);
+
+    return () => window.clearInterval(timer);
+  }, [brandCarouselPaused, scrollBrandCarousel]);
+
   return (
     <section id="about" className="py-[86px] font-arial leading-[1.6] max-[680px]:py-16">
       <div className="container-site">
@@ -32,7 +149,6 @@ export default function About() {
           />
 
           <div>
-            {/* Kept as in the React version */}
             <p className={eyebrow}>About Us</p>
 
             <h2 className="mb-[18px] mt-2.5 font-arial text-[clamp(2rem,3.5vw,2.7rem)] font-[850] leading-[1.2] text-navy">
@@ -49,7 +165,6 @@ export default function About() {
               covering the full chain from registration to market launch.
             </p>
 
-            {/* Kept as in the React version */}
             <div className="mt-6 rounded-2xl border bg-card p-5">
               <p className="font-display text-lg font-bold text-navy">Dr. AKM Noor</p>
               <p className="text-sm text-muted-foreground">Managing Director</p>
@@ -57,18 +172,76 @@ export default function About() {
           </div>
         </div>
 
-        {/* Brands */}
+        {/* Partners: one-line, responsive logo carousel */}
         <div className="mt-16 text-center max-[680px]:mt-12">
-          <p className={eyebrow}>Brands we import</p>
-          <div className="mt-5 flex flex-wrap justify-center gap-2.5">
-            {brands.map((b) => (
-              <span
-                key={b}
-                className="rounded-full border border-border bg-card px-4 py-2 text-sm font-bold text-navy shadow-[0_6px_16px_-10px_rgba(29,62,122,0.3)]"
+          <p className={eyebrow}>Our Partners</p>
+          <h3 className="mt-2.5 font-arial text-[clamp(1.8rem,3vw,2.25rem)] font-[850] leading-[1.2] text-navy">
+            Brands We Import
+          </h3>
+          <p className="mt-2 text-[1rem] text-muted-foreground">
+            Connecting Bangladesh with global healthcare manufacturers.
+          </p>
+
+          <div
+            className="mt-6"
+            role="region"
+            aria-label="Our partners logo carousel"
+            aria-roledescription="carousel"
+            onMouseEnter={() => setBrandCarouselPaused(true)}
+            onMouseLeave={() => setBrandCarouselPaused(false)}
+            onFocusCapture={() => setBrandCarouselPaused(true)}
+            onBlurCapture={(event) => {
+              if (!event.currentTarget.contains(event.relatedTarget as Node | null)) {
+                setBrandCarouselPaused(false);
+              }
+            }}
+          >
+            <div className="mb-2 flex justify-end gap-2">
+              <button
+                type="button"
+                aria-label="Previous partner logos"
+                onClick={() => scrollBrandCarousel("previous")}
+                className="grid h-10 w-10 place-items-center rounded-full border border-border bg-card text-navy transition-colors duration-200 hover:border-teal hover:text-teal focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal"
               >
-                {b}
-              </span>
-            ))}
+                <ChevronLeft className="h-5 w-5" aria-hidden="true" />
+              </button>
+              <button
+                type="button"
+                aria-label="Next partner logos"
+                onClick={() => scrollBrandCarousel("next")}
+                className="grid h-10 w-10 place-items-center rounded-full border border-border bg-card text-navy transition-colors duration-200 hover:border-teal hover:text-teal focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal"
+              >
+                <ChevronRight className="h-5 w-5" aria-hidden="true" />
+              </button>
+            </div>
+
+            <div
+              ref={brandCarouselRef}
+              tabIndex={0}
+              aria-label="Partner logos. Use the previous and next buttons or horizontal scrolling to browse."
+              className="flex snap-x snap-mandatory gap-4 overflow-x-auto overscroll-x-contain px-1 py-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+            >
+              {brands.map((brand) => (
+                <div
+                  key={brand.name}
+                  data-brand-card
+                  className="group flex h-[94px] w-[168px] shrink-0 snap-start items-center justify-center rounded-2xl border border-[rgba(29,62,122,0.16)] bg-card p-4 shadow-[0_8px_20px_-16px_rgba(29,62,122,0.32)] transition-colors duration-200 hover:border-teal max-[900px]:w-[148px] max-[680px]:h-[82px] max-[680px]:w-[128px]"
+                >
+                  <img
+                    src={brand.src}
+                    alt={brand.alt ?? brand.name + " logo"}
+                    title={brand.name}
+                    loading="lazy"
+                    decoding="async"
+                    className={
+                      "max-h-[58px] max-w-full object-contain transition-transform duration-200 group-hover:scale-[1.04] max-[680px]:max-h-[48px] " +
+                      (brand.imageClass ?? "")
+                    }
+                    style={brand.monochrome ? { filter: "brightness(0) saturate(100%)" } : undefined}
+                  />
+                </div>
+              ))}
+            </div>
           </div>
         </div>
 
