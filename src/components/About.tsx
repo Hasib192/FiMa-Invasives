@@ -4,11 +4,6 @@ import {
   ChevronRight,
   Pause,
   Play,
-  FileCheck,
-  Ship,
-  Warehouse,
-  Megaphone,
-  Rocket,
 } from "lucide-react";
 import aboutImg from "../assets/about-us-banner.jpg";
 
