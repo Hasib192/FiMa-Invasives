@@ -115,3 +115,39 @@ html {
     width: min(100% - 32px, 560px);
   }
 }
+
+/* FiMa partner logo marquee: continuous, seamless, single-row movement. */
+@keyframes fima-partner-marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+.brand-logo-marquee {
+  width: 100%;
+  overflow: hidden;
+}
+
+.brand-logo-track {
+  display: flex;
+  width: max-content;
+  animation: fima-partner-marquee 38s linear infinite;
+  will-change: transform;
+}
+
+.brand-logo-group {
+  display: flex;
+  flex: 0 0 auto;
+  gap: 1rem;
+  padding-right: 1rem;
+}
+
+/* Keep the movement slower for people who request reduced motion. */
+@media (prefers-reduced-motion: reduce) {
+  .brand-logo-track {
+    animation-duration: 75s;
+  }
+}
