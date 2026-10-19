@@ -1,7 +1,9 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useState } from "react";
 import {
   ChevronLeft,
   ChevronRight,
+  Pause,
+  Play,
   FileCheck,
   Ship,
   Warehouse,
@@ -18,8 +20,7 @@ type BrandLogo = {
   monochrome?: boolean;
 };
 
-// Original logo artwork from manufacturer/source websites.
-// The carousel displays image artwork instead of brand-name text.
+// Brand logos are image assets, not text labels.
 const brands: BrandLogo[] = [
   {
     name: "BD",
@@ -78,53 +79,19 @@ const brands: BrandLogo[] = [
   },
 ];
 
+const services = [
+  { icon: FileCheck, title: "Product Registration" },
+  { icon: Ship, title: "Import" },
+  { icon: Warehouse, title: "Storage & Distribution" },
+  { icon: Megaphone, title: "Promotion & Sales" },
+  { icon: Rocket, title: "Market Research & Launch" },
+];
+
 const eyebrow = "text-sm font-bold uppercase tracking-widest text-teal";
 
 export default function About() {
-  const brandCarouselRef = useRef<HTMLDivElement>(null);
-  const prefersReducedMotion = useRef(false);
   const [brandCarouselPaused, setBrandCarouselPaused] = useState(false);
-
-  const scrollBrandCarousel = useCallback((direction: "previous" | "next") => {
-    const viewport = brandCarouselRef.current;
-    const firstCard = viewport?.querySelector<HTMLElement>("[data-brand-card]");
-
-    if (!viewport || !firstCard) return;
-
-    const styles = window.getComputedStyle(viewport);
-    const gap = Number.parseFloat(styles.columnGap || styles.gap || "16");
-    const step = firstCard.getBoundingClientRect().width + (Number.isFinite(gap) ? gap : 16);
-    const maxScroll = Math.max(0, viewport.scrollWidth - viewport.clientWidth);
-    const atStart = viewport.scrollLeft <= 2;
-    const atEnd = viewport.scrollLeft >= maxScroll - 2;
-
-    let left: number;
-
-    if (direction === "next") {
-      left = atEnd ? 0 : Math.min(maxScroll, viewport.scrollLeft + step);
-    } else {
-      left = atStart ? maxScroll : Math.max(0, viewport.scrollLeft - step);
-    }
-
-    viewport.scrollTo({
-      left,
-      behavior: prefersReducedMotion.current ? "auto" : "smooth",
-    });
-  }, []);
-
-  useEffect(() => {
-    const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
-    prefersReducedMotion.current = reducedMotion.matches;
-
-    // Respect motion preferences; manual scrolling and arrow controls remain available.
-    if (brandCarouselPaused || reducedMotion.matches) return;
-
-    const timer = window.setInterval(() => {
-      scrollBrandCarousel("next");
-    }, 4200);
-
-    return () => window.clearInterval(timer);
-  }, [brandCarouselPaused, scrollBrandCarousel]);
+  const [brandCarouselDirection, setBrandCarouselDirection] = useState<"left" | "right">("left");
 
   return (
     <section id="about" className="py-[86px] font-arial leading-[1.6] max-[680px]:py-16">
@@ -164,7 +131,7 @@ export default function About() {
           </div>
         </div>
 
-        {/* Partners: one-line, responsive logo carousel */}
+        {/* Partners: continuously moving, single-row logo marquee */}
         <div className="mt-16 text-center max-[680px]:mt-12">
           <p className={eyebrow}>Our Partners</p>
           <h3 className="mt-2.5 font-arial text-[clamp(1.8rem,3vw,2.25rem)] font-[850] leading-[1.2] text-navy">
@@ -174,67 +141,98 @@ export default function About() {
             Connecting Bangladesh with global healthcare manufacturers.
           </p>
 
-          <div
-            className="mt-6"
-            role="region"
-            aria-label="Our partners logo carousel"
-            aria-roledescription="carousel"
-            onMouseEnter={() => setBrandCarouselPaused(true)}
-            onMouseLeave={() => setBrandCarouselPaused(false)}
-            onFocusCapture={() => setBrandCarouselPaused(true)}
-            onBlurCapture={(event) => {
-              if (!event.currentTarget.contains(event.relatedTarget as Node | null)) {
-                setBrandCarouselPaused(false);
-              }
-            }}
-          >
-            <div className="mb-2 flex justify-end gap-2">
+          <div className="mt-6" role="region" aria-label="Our partners logo carousel">
+            <div className="mb-3 flex justify-end gap-2">
               <button
                 type="button"
-                aria-label="Previous partner logos"
-                onClick={() => scrollBrandCarousel("previous")}
+                aria-label="Move logos to the right"
+                title="Move logos to the right"
+                onClick={() => setBrandCarouselDirection("right")}
                 className="grid h-10 w-10 place-items-center rounded-full border border-border bg-card text-navy transition-colors duration-200 hover:border-teal hover:text-teal focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal"
               >
                 <ChevronLeft className="h-5 w-5" aria-hidden="true" />
               </button>
               <button
                 type="button"
-                aria-label="Next partner logos"
-                onClick={() => scrollBrandCarousel("next")}
+                aria-label="Move logos to the left"
+                title="Move logos to the left"
+                onClick={() => setBrandCarouselDirection("left")}
                 className="grid h-10 w-10 place-items-center rounded-full border border-border bg-card text-navy transition-colors duration-200 hover:border-teal hover:text-teal focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal"
               >
                 <ChevronRight className="h-5 w-5" aria-hidden="true" />
               </button>
+              <button
+                type="button"
+                aria-label={brandCarouselPaused ? "Resume logo movement" : "Pause logo movement"}
+                title={brandCarouselPaused ? "Resume logo movement" : "Pause logo movement"}
+                onClick={() => setBrandCarouselPaused((paused) => !paused)}
+                className="grid h-10 w-10 place-items-center rounded-full border border-border bg-card text-navy transition-colors duration-200 hover:border-teal hover:text-teal focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal"
+              >
+                {brandCarouselPaused ? (
+                  <Play className="h-4 w-4" aria-hidden="true" />
+                ) : (
+                  <Pause className="h-4 w-4" aria-hidden="true" />
+                )}
+              </button>
             </div>
 
-            <div
-              ref={brandCarouselRef}
-              tabIndex={0}
-              aria-label="Partner logos. Use the previous and next buttons or horizontal scrolling to browse."
-              className="flex snap-x snap-mandatory gap-4 overflow-x-auto overscroll-x-contain px-1 py-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
-            >
-              {brands.map((brand) => (
-                <div
-                  key={brand.name}
-                  data-brand-card
-                  className="group flex h-[94px] w-[168px] shrink-0 snap-start items-center justify-center rounded-2xl border border-[rgba(29,62,122,0.16)] bg-card p-4 shadow-[0_8px_20px_-16px_rgba(29,62,122,0.32)] transition-colors duration-200 hover:border-teal max-[900px]:w-[148px] max-[680px]:h-[82px] max-[680px]:w-[128px]"
-                >
-                  <img
-                    src={brand.src}
-                    alt={brand.alt ?? brand.name + " logo"}
-                    title={brand.name}
-                    loading="lazy"
-                    decoding="async"
-                    className={
-                      "max-h-[58px] max-w-full object-contain transition-transform duration-200 group-hover:scale-[1.04] max-[680px]:max-h-[48px] " +
-                      (brand.imageClass ?? "")
-                    }
-                    style={brand.monochrome ? { filter: "brightness(0) saturate(100%)" } : undefined}
-                  />
-                </div>
-              ))}
+            <div className="brand-logo-marquee rounded-2xl" aria-label="Moving partner logos">
+              <div
+                className="brand-logo-track"
+                style={{
+                  animationDirection: brandCarouselDirection === "left" ? "normal" : "reverse",
+                  animationPlayState: brandCarouselPaused ? "paused" : "running",
+                }}
+              >
+                {[0, 1].map((copy) => (
+                  <div
+                    key={copy}
+                    className="brand-logo-group"
+                    aria-hidden={copy === 1 ? "true" : undefined}
+                  >
+                    {brands.map((brand) => (
+                      <div
+                        key={brand.name}
+                        className="group flex h-[94px] w-[168px] shrink-0 items-center justify-center rounded-2xl border border-[rgba(29,62,122,0.18)] bg-card p-4 shadow-[0_8px_20px_-16px_rgba(29,62,122,0.32)] transition-colors duration-200 hover:border-teal max-[900px]:w-[148px] max-[680px]:h-[82px] max-[680px]:w-[128px]"
+                      >
+                        <img
+                          src={brand.src}
+                          alt={copy === 1 ? "" : (brand.alt ?? brand.name + " logo")}
+                          title={copy === 1 ? undefined : brand.name}
+                          loading="eager"
+                          decoding="async"
+                          className={
+                            "max-h-[58px] max-w-full object-contain transition-transform duration-200 group-hover:scale-[1.04] max-[680px]:max-h-[48px] " +
+                            (brand.imageClass ?? "")
+                          }
+                          style={brand.monochrome ? { filter: "brightness(0) saturate(100%)" } : undefined}
+                        />
+                      </div>
+                    ))}
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
+        </div>
+
+        {/* Service chain */}
+        <div className="mt-14 text-center max-[680px]:mt-12">
+          <p className={eyebrow}>What we cover</p>
+          <ol className="mt-6 grid grid-cols-5 gap-4 max-[900px]:grid-cols-3 max-[680px]:grid-cols-2 max-[680px]:gap-3">
+            {services.map(({ icon: Icon, title }, i) => (
+              <li
+                key={title}
+                className="relative rounded-[22px] border border-[rgba(29,62,122,0.06)] bg-card px-4 pb-5 pt-7 shadow-soft"
+              >
+                <span className="absolute left-4 top-3 text-xs font-bold text-teal/60">0{i + 1}</span>
+                <div className="mx-auto mb-3 grid h-12 w-12 place-items-center rounded-[14px] bg-[#e5f1ec] text-teal">
+                  <Icon className="h-6 w-6" />
+                </div>
+                <p className="text-sm font-bold leading-snug text-navy">{title}</p>
+              </li>
+            ))}
+          </ol>
         </div>
       </div>
     </section>
